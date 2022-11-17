@@ -4,6 +4,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Button
 import android.widget.EditText
+import android.widget.Toast
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -54,6 +55,7 @@ class MainActivity : AppCompatActivity() {
 
         viewModel.insertStudent(student)
     }
+
     private fun clearInput() {
         nameEditTest.setText("")
         emailEditTest.setText("")
@@ -62,7 +64,9 @@ class MainActivity : AppCompatActivity() {
     // display list of student
     private fun initRecyclerView() {
         studentRecyclerView.layoutManager = LinearLayoutManager(this)
-        adapter = StudentRecyclerViewAdapter()
+        adapter = StudentRecyclerViewAdapter{
+            selectedItem: Student -> listItemClicked(selectedItem)
+        }
         studentRecyclerView.adapter = adapter
 
         displayStudentList()
@@ -73,5 +77,13 @@ class MainActivity : AppCompatActivity() {
             adapter.setList(it)
             adapter.notifyDataSetChanged()
         })
+    }
+
+    private fun listItemClicked(student: Student){
+        Toast.makeText(
+            this,
+            "Student name is ${student.name}",
+            Toast.LENGTH_LONG
+        ).show()
     }
 }
