@@ -22,6 +22,10 @@ class MainActivity : AppCompatActivity() {
     private lateinit var studentRecyclerView: RecyclerView
     private lateinit var adapter: StudentRecyclerViewAdapter
 
+    // hold selected student
+    private lateinit var selectedStudent: Student
+    private var isListItemClicked = false
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -38,11 +42,21 @@ class MainActivity : AppCompatActivity() {
         viewModel = ViewModelProvider(this, factory).get(StudentViewModel::class.java)
 
         saveButton.setOnClickListener {
-            saveStudentData()
-            clearInput()
+            if(isListItemClicked){
+                updateStudentData()
+                clearInput()
+            } else {
+                saveStudentData()
+                clearInput()
+            }
         }
         clearButton.setOnClickListener {
-            clearInput()
+            if(isListItemClicked){
+                deleteStudentData()
+                clearInput()
+            } else {
+                clearInput()
+            }
         }
 
         initRecyclerView()
@@ -54,6 +68,34 @@ class MainActivity : AppCompatActivity() {
         val student = Student(0, name, email)
 
         viewModel.insertStudent(student)
+    }
+
+    private fun updateStudentData(){
+        viewModel.updateStudent(
+            Student(
+                selectedStudent.id,
+                nameEditTest.text.toString(),
+                emailEditTest.text.toString(),
+            )
+        )
+
+        saveButton.text = "Save"
+        clearButton.text = "Clear"
+        isListItemClicked = false
+    }
+
+    private fun deleteStudentData(){
+        viewModel.deleteStudent(
+            Student(
+                selectedStudent.id,
+                nameEditTest.text.toString(),
+                emailEditTest.text.toString(),
+            )
+        )
+
+        saveButton.text = "Save"
+        clearButton.text = "Clear"
+        isListItemClicked = false
     }
 
     private fun clearInput() {
@@ -80,10 +122,16 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun listItemClicked(student: Student){
-        Toast.makeText(
-            this,
-            "Student name is ${student.name}",
-            Toast.LENGTH_LONG
-        ).show()
+//        Toast.makeText(
+//            this,
+//            "Student name is ${student.name}",
+//            Toast.LENGTH_LONG
+//        ).show()
+        selectedStudent = student
+        saveButton.text = "Update"
+        clearButton.text = "Delete"
+        isListItemClicked = true
+        nameEditTest.setText(selectedStudent.name)
+        emailEditTest.setText(selectedStudent.email)
     }
 }
