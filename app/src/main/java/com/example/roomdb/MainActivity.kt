@@ -5,6 +5,8 @@ import android.os.Bundle
 import android.widget.Button
 import android.widget.EditText
 import androidx.lifecycle.ViewModelProvider
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.example.roomdb.db.Student
 import com.example.roomdb.db.StudentDB
 
@@ -15,6 +17,9 @@ class MainActivity : AppCompatActivity() {
     private lateinit var clearButton: Button
 
     private lateinit var viewModel: StudentViewModel
+    // defining recyclerview
+    private lateinit var studentRecyclerView: RecyclerView
+    private lateinit var adapter: StudentRecyclerViewAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -24,6 +29,8 @@ class MainActivity : AppCompatActivity() {
         emailEditTest = findViewById(R.id.etEmail)
         saveButton = findViewById(R.id.btnSave)
         clearButton = findViewById(R.id.btnClear)
+
+        studentRecyclerView = findViewById(R.id.rvStudents)
 
         val dao = StudentDB.getInstance(application).studentDao()
         val factory = StudentViewModelFactory(dao)
@@ -36,6 +43,8 @@ class MainActivity : AppCompatActivity() {
         clearButton.setOnClickListener {
             clearInput()
         }
+
+        initRecyclerView()
     }
 
     private fun saveStudentData() {
@@ -48,5 +57,21 @@ class MainActivity : AppCompatActivity() {
     private fun clearInput() {
         nameEditTest.setText("")
         emailEditTest.setText("")
+    }
+
+    // display list of student
+    private fun initRecyclerView() {
+        studentRecyclerView.layoutManager = LinearLayoutManager(this)
+        adapter = StudentRecyclerViewAdapter()
+        studentRecyclerView.adapter = adapter
+
+        displayStudentList()
+    }
+
+    private fun displayStudentList(){
+        viewModel.students.observe(this,{
+            adapter.setList(it)
+            adapter.notifyDataSetChanged()
+        })
     }
 }
